@@ -1,6 +1,6 @@
 #pragma once
 
-struct process{
+struct Process{
         int id;
         //Turn around time completion time - arrival time 
         int turnaroundTime;

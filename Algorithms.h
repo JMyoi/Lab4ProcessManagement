@@ -1,10 +1,12 @@
 #pragma once
-#include "process.h"
+#include "Process.h"
 #include <vector>
+using namespace std;
+
 
 //first come first serve
-void FCFS();
-void Priority();
+void FCFS(vector<Process> readyQueue);
+void Priority(vector<Process> readyQueue);
 //shortest job next
-void SJN();
-void RoundRobin();
+void SJN(vector<Process> readyQueue);
+void RoundRobin(vector<Process> readyQueue);

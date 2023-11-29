@@ -1,32 +1,37 @@
 #include <iostream>
 #include <vector>
 #include "Algorithms.h"
-#include "process.h"
+#include "Process.h"
 using namespace std;
 
-int main(){
-    cout<<"Enter the number of processes to run: "<<endl;
+int main() {
+    cout << "Enter the number of processes to run: " << endl;
     int readyQueueSize;
-    cin>>readyQueueSize;
-    vector<process> readyQueue(readyQueueSize);
-    cout<<"Enter the burst time, arrival time, and priority for each process: \n";
-    for(int i = 0; i<readyQueueSize; i++){
-        cout<<"Process "<<i+1<<"\n\tArrival Time: ";
-        cin>>readyQueue.at(i).arrivalTime;
-        cout<<"\n\tBurst Time:";
-        cin>>readyQueue.at(i).burstTime;
-        cout<<"\n\tpriority: ";
-        cin>>readyQueue.at(i).priority;
-        cout<<endl;
+    cin >> readyQueueSize;
+    vector<Process> readyQueue(readyQueueSize);
+    cout << "Enter the burst time, arrival time, and priority for each process: \n";
+    for (int i = 0; i < readyQueueSize; i++) {
+        cout << "Process " << i + 1 << "\n\tArrival Time: ";
+        cin >> readyQueue.at(i).arrivalTime;
+        cout << "\n\tBurst Time:";
+        cin >> readyQueue.at(i).burstTime;
+        cout << "\n\tpriority: ";
+        cin >> readyQueue.at(i).priority;
+        cout << endl;
+        readyQueue.at(i).id = i + 1;
     }
-    for(int i = 0; i<readyQueueSize; i++){
-       cout<< readyQueue.at(i).arrivalTime<<endl;
-        cout<< readyQueue.at(i).burstTime<<endl;
-       cout<< readyQueue.at(i).priority<<endl;
-
-    }
-
-
+    cout << "*************************************First Come First Serve************************************\n";
+    FCFS(readyQueue);
+    cout << "***********************************************************************************************\n";
+    cout << "****************************************Shortest Job Next************************************\n";
+    SJN(readyQueue);
+    cout << "***********************************************************************************************\n";
+    cout << "*************************************Priority (preemptive)************************************\n";
+    Priority(readyQueue);
+    cout << "***********************************************************************************************\n";
+    cout << "*************************************Round Robin**********************************************\n";
+    RoundRobin(readyQueue);
+    cout << "***********************************************************************************************\n";
 
 
 }
