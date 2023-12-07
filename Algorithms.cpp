@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 #include<iostream>
+#include <cstring>
+#include <limits.h>
 using namespace std;
 
 bool compareArrival(Process p1, Process p2) {
