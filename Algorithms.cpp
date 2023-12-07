@@ -53,11 +53,9 @@ void SRTF(vector<Process> readyQueue) {
 			previousProcess = index;
 		}
 		//if the process we are going to run is not the previous one that means that there was a preemtive switch which takes 2 tics.
-		cout<<"previous process: "<<previousProcess<<" current: "<<index<<endl;
 		if(index!=previousProcess){
 			currentTime+=2;
 			totalSwitchingTime+=2;
-			cout<<"switching process's\n";
 			//since all processes are at a halt because of the switch every process that is in the queue and not complete yet increments their wait time by 2
 			for(int i = 0; i<readyQueue.size(); i++){
 				if (readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0){
@@ -173,11 +171,14 @@ void SJN(vector<Process> readyQueue) {
 			}
 		}
 		//since there is a switch in process we have to increment wait time and switch time and current time by 2
-		currentTime+=2;
-		totalSwitchingTime+=2;
-		for(int i = 0; i<readyQueue.size(); i++) {
-			if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0){
-				readyQueue.at(i).waitTime+=2;
+		//but not for the first one
+		if(currentTime!=0){
+			currentTime+=2;
+			totalSwitchingTime+=2;
+			for(int i = 0; i<readyQueue.size(); i++) {
+				if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0){
+					readyQueue.at(i).waitTime+=2;
+				}
 			}
 		}
 
@@ -226,12 +227,13 @@ void SJN(vector<Process> readyQueue) {
 	double CPUefficiency = (double)currentTime / (currentTime + totalSwitchingTime);
 	cout<<"CPU Efficiency: "<<CPUefficiency<<"%\n";
 
-	cout << "\nPID\tStart Time\tCompletion Time\tTurnaround Time\tWait Time\n";
+	cout << "\nPID\tService Time\tTurnaround Time\tStart Time\tCompletion Time\tWait Time\n";
 	for (int i = 0; i < readyQueue.size(); i++) {
 		cout << readyQueue.at(i).id << "\t"
+		<<  readyQueue.at(i).completionTime - readyQueue.at(i).arrivalTime - readyQueue.at(i).waitTime <<"\t\t   "
+		<< readyQueue.at(i).turnaroundTime <<"\t\t"
 		 << readyQueue.at(i).startTime << "\t\t"
 		  << readyQueue.at(i).completionTime << "\t\t"
-		   << readyQueue.at(i).turnaroundTime <<"\t\t"
 		<<readyQueue[i].waitTime << endl;
 	}
 
