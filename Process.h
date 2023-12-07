@@ -2,11 +2,12 @@
 
 struct Process{
         int id;
-        //Turn around time completion time - arrival time 
         int turnaroundTime;
         int burstTime;
         int arrivalTime;
         int priority;
-        int startTime;
+        int startTime = -1;
         int completionTime;
+        int waitTime=0;
+        int ServiceTime = 0;
 };
