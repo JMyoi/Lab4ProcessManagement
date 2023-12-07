@@ -9,5 +9,4 @@ struct Process{
         int startTime = -1;
         int completionTime;
         int waitTime=0;
-        int ServiceTime = 0;
 };

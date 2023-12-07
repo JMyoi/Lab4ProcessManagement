@@ -38,27 +38,36 @@ void SRTF(vector<Process> readyQueue) {
     while (completed != readyQueue.size()) {
         int index = -1;
         int min = INT_MAX;
-
 		//get the smallest burst time our of all the processes that are currently in queue at current time.
         for (int i = 0; i < readyQueue.size(); i++) {
-			//if it has not in the queue at this current time and not completed 
+			//if it is not in the queue at this current time and not completed 
             if (readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0) {
                 if (remainingTime[i] < min) {
                     min = remainingTime[i];
                     index = i;
-					//if its not the start of the program then set the prev process to be the smallest process.
-					if(currentTime!=0){
-						previousProcess = i;
-					}
                 }
             }
         }
+
+		if(currentTime == 0){
+			previousProcess = index;
+		}
 		//if the process we are going to run is not the previous one that means that there was a preemtive switch which takes 2 tics.
+		cout<<"previous process: "<<previousProcess<<" current: "<<index<<endl;
 		if(index!=previousProcess){
 			currentTime+=2;
 			totalSwitchingTime+=2;
 			cout<<"switching process's\n";
+			//since all processes are at a halt because of the switch every process that is in the queue and not complete yet increments their wait time by 2
+			for(int i = 0; i<readyQueue.size(); i++){
+				if (readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0){
+				readyQueue.at(i).waitTime+=2;
+				}
+			}
 		}
+		//if its not the start of the program then set the prev process to be the smallest process.
+		previousProcess = index;
+					
 
 		//if it is -1 then that means there are no processes in this current time.
         if (index != -1) {
@@ -69,7 +78,6 @@ void SRTF(vector<Process> readyQueue) {
             remainingTime[index]--;
             currentTime++;
 			//increment the process's service time
-			readyQueue.at(index).ServiceTime++;
 
 			//for every process that is in the queue at this current time other than the one currently worked on increase the wait time by 1
 			 for (int i = 0; i < readyQueue.size(); i++) {
@@ -92,9 +100,9 @@ void SRTF(vector<Process> readyQueue) {
             }
         } else {
             currentTime++;
-			//for every process other than the one currently worked on increase the wait time by 1
+			//for every process other than the one currently worked that is in the queue or not finished  increase the wait time by 1
 			for(int i = 0; i < readyQueue.size(); i++){
-				if(i!=index){
+				if(i!=index && readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0){
 					readyQueue.at(i).waitTime++;
 				}
 			}
@@ -116,66 +124,47 @@ void SRTF(vector<Process> readyQueue) {
     float avgTurnaround = (float)totalTurnaround / readyQueue.size();
 	cout << "Average Turnaround Time = " << avgTurnaround << endl;
 
-	//CPU efficiencycout
+	//CPU efficiency
 	cout<<"total Switching time for CPU calculaiton: "<< totalSwitchingTime <<endl;
 	double CPUefficiency = (double)currentTime / (currentTime + totalSwitchingTime);
 	cout<<"CPU Efficiency: "<<CPUefficiency<<"%\n";
 
-	cout << "\nPID\tService Time\tTurnaround Time\tStart Time\tCompletion Time";
+	cout << "\nPID\tService Time\tTurnaround Time\tStart Time\tCompletion Time\tWait Time\n";
 	for (int i = 0; i < readyQueue.size(); i++) {
         cout << readyQueue[i].id << "\t  " 
 		<<  readyQueue.at(i).completionTime - readyQueue.at(i).arrivalTime - readyQueue.at(i).waitTime <<"\t\t   "
 		<< readyQueue[i].turnaroundTime << "\t\t" 
         << readyQueue[i].startTime << "\t\t"
-		<< readyQueue[i].completionTime 
+		<< readyQueue[i].completionTime <<"\t\t"
+		<<readyQueue[i].waitTime 
         << endl;
     }
-	// cout << "\nPID\tService Time (deep count ver)\n";
-	// for (int i = 0; i < readyQueue.size(); i++) {
-    //     cout << readyQueue[i].id << "\t" 
-	// 	<< readyQueue[i].ServiceTime << "\t"
-	// 	<< endl;
-    // }
-    // cout << "\nPID\tArrival Time\tStart Time\tCompletion Time\tTurnaround Time\n";
-    // for (int i = 0; i < readyQueue.size(); i++) {
-    //     cout << readyQueue[i].id << "\t" << readyQueue[i].arrivalTime << "\t\t" 
-    //          << readyQueue[i].startTime << "\t\t" << readyQueue[i].completionTime 
-    //          << "\t\t" << readyQueue[i].turnaroundTime << endl;
-    // }
 
-    
 }
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
 void SJN(vector<Process> readyQueue) {
+	//is completed array keeps track of the status of the process in its respective index.
 	int isCompleted[500];
-	int totalTurnaround(0);
+	int totalTurnaround = 0;
 	memset(isCompleted, 0, sizeof(isCompleted));
-	int currentTime(0), completed(0);
-
+	int currentTime = 0, completed = 0;
+	int totalSwitchingTime = 0;
 
 	while (completed != readyQueue.size()) {
-		int index(-1), max(500);
+		int index = -1, max = 500;
+
 		for (int i = 0; i < readyQueue.size(); i++) {
+			//check to see which process that is in the queue and not completed has the shortest burst time.
 			if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0) {
 				if (readyQueue.at(i).burstTime < max) {
 					max = readyQueue.at(i).burstTime;
 					index = i;
 				}
-				if (readyQueue.at(i).burstTime == max) {
+				if (readyQueue.at(i).burstTime == max) {//if they are equal check which one came first 
 					if (readyQueue.at(i).arrivalTime < readyQueue.at(index).arrivalTime) {
 						max = readyQueue.at(i).burstTime;
 						index = i;
@@ -183,8 +172,21 @@ void SJN(vector<Process> readyQueue) {
 				}
 			}
 		}
+		//since there is a switch in process we have to increment wait time and switch time and current time by 2
+		currentTime+=2;
+		totalSwitchingTime+=2;
+		for(int i = 0; i<readyQueue.size(); i++) {
+			if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0){
+				readyQueue.at(i).waitTime+=2;
+			}
+		}
 
 		if (index != -1) {
+			for(int i = 0; i<readyQueue.size(); i++) {
+				if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0 && i!=index){
+					readyQueue.at(i).waitTime++;
+				}
+			}
 			readyQueue.at(index).startTime = currentTime;
 			readyQueue.at(index).completionTime = readyQueue.at(index).startTime + readyQueue.at(index).burstTime;
 			readyQueue.at(index).turnaroundTime = readyQueue.at(index).completionTime - readyQueue.at(index).arrivalTime;
@@ -193,20 +195,45 @@ void SJN(vector<Process> readyQueue) {
 			completed++;
 			currentTime = readyQueue.at(index).completionTime;
 		}
-
 		else {
 			currentTime++;
+			for(int i = 0; i<readyQueue.size(); i++) {
+				if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0){
+					readyQueue.at(i).waitTime++;
+				}
+			}
 		}
 
 	}
 
+	cout<<"Total Time: "<<currentTime<<endl;
+
+	//average waiting time
+	int totalWaitTime = 0;
+	for(int i = 0; i < readyQueue.size(); i++){
+		totalWaitTime+=readyQueue.at(i).waitTime;
+	}
+	int avgWaitTime = totalWaitTime/readyQueue.size();
+	cout<<"Average Waiting Time: "<<avgWaitTime<<endl;
+
+	//average TAT
 	float avgTurnaround;
 	avgTurnaround = (float)totalTurnaround / readyQueue.size();
-	cout << "\nPID\tArrival Time\tStart Time\tCompletion Time\tTurnaround Time\t\n";
+	cout << "Average Turnaround Time = " << avgTurnaround << endl;
+
+	//cpu efficiency
+	cout<<"total Switching time for CPU calculaiton: "<< totalSwitchingTime <<endl;
+	double CPUefficiency = (double)currentTime / (currentTime + totalSwitchingTime);
+	cout<<"CPU Efficiency: "<<CPUefficiency<<"%\n";
+
+	cout << "\nPID\tStart Time\tCompletion Time\tTurnaround Time\tWait Time\n";
 	for (int i = 0; i < readyQueue.size(); i++) {
-		cout << readyQueue.at(i).id << "\t" << readyQueue.at(i).arrivalTime << "\t\t" << readyQueue.at(i).startTime << "\t\t" << readyQueue.at(i).completionTime << "\t\t" << readyQueue.at(i).turnaroundTime << endl;
+		cout << readyQueue.at(i).id << "\t"
+		 << readyQueue.at(i).startTime << "\t\t"
+		  << readyQueue.at(i).completionTime << "\t\t"
+		   << readyQueue.at(i).turnaroundTime <<"\t\t"
+		<<readyQueue[i].waitTime << endl;
 	}
 
-	cout << "Average Turnaround Time = " << avgTurnaround << endl;
 
 }

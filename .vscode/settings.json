@@ -59,6 +59,7 @@
   "files.associations": {
     "iostream": "cpp",
     "cstring": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "*.tcc": "cpp"
   }
 }
