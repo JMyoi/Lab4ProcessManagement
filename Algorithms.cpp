@@ -71,14 +71,14 @@ void SRTF(vector<Process> readyQueue) {
 
 
 void SJN(vector<Process> readyQueue) {
-	int isCompleted[100];
+	int isCompleted[500];
 	int totalTurnaround(0);
 	memset(isCompleted, 0, sizeof(isCompleted));
 	int currentTime(0), completed(0);
 
 
 	while (completed != readyQueue.size()) {
-		int index(-1), max(100);
+		int index(-1), max(500);
 		for (int i = 0; i < readyQueue.size(); i++) {
 			if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0) {
 				if (readyQueue.at(i).burstTime < max) {
@@ -118,6 +118,5 @@ void SJN(vector<Process> readyQueue) {
 	}
 
 	cout << "Average Turnaround Time = " << avgTurnaround << endl;
-
 
 }
