@@ -80,10 +80,8 @@ void SRTF(vector<Process> readyQueue) {
 			//for every process that is in the queue at this current time other than the one currently worked on increase the wait time by 1
 			 for (int i = 0; i < readyQueue.size(); i++) {
 				//if it has not in the queue at this current time and not completed 
-				if (readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0) {
-					if(i!=index){
-						readyQueue.at(i).waitTime++;
-					}
+				if(i!=index && readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0){
+					readyQueue.at(i).waitTime++;
 				}
 			}
 			
@@ -96,15 +94,10 @@ void SRTF(vector<Process> readyQueue) {
                 isCompleted[index] = 1;
                 completed++;
             }
+
         } else {
             currentTime++;
-			//for every process other than the one currently worked that is in the queue or not finished  increase the wait time by 1
-			for(int i = 0; i < readyQueue.size(); i++){
-				if(i!=index && readyQueue[i].arrivalTime <= currentTime && isCompleted[i] == 0){
-					readyQueue.at(i).waitTime++;
-				}
-			}
-
+			
         }
     }
 
@@ -130,7 +123,7 @@ void SRTF(vector<Process> readyQueue) {
 	cout << "\nPID\tService Time\tTurnaround Time\tStart Time\tCompletion Time\tWait Time\n";
 	for (int i = 0; i < readyQueue.size(); i++) {
         cout << readyQueue[i].id << "\t  " 
-		<<  readyQueue.at(i).completionTime - readyQueue.at(i).arrivalTime - readyQueue.at(i).waitTime <<"\t\t   "
+		<<  readyQueue.at(i).burstTime <<"\t\t   "
 		<< readyQueue[i].turnaroundTime << "\t\t" 
         << readyQueue[i].startTime << "\t\t"
 		<< readyQueue[i].completionTime <<"\t\t"
@@ -183,11 +176,6 @@ void SJN(vector<Process> readyQueue) {
 		}
 
 		if (index != -1) {
-			for(int i = 0; i<readyQueue.size(); i++) {
-				if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0 && i!=index){
-					readyQueue.at(i).waitTime++;
-				}
-			}
 			readyQueue.at(index).startTime = currentTime;
 			readyQueue.at(index).completionTime = readyQueue.at(index).startTime + readyQueue.at(index).burstTime;
 			readyQueue.at(index).turnaroundTime = readyQueue.at(index).completionTime - readyQueue.at(index).arrivalTime;
@@ -195,14 +183,17 @@ void SJN(vector<Process> readyQueue) {
 			isCompleted[index] = 1;
 			completed++;
 			currentTime = readyQueue.at(index).completionTime;
+            int timePasses = currentTime-readyQueue.at(index).startTime;
+            //increment wait time 
+			for(int i = 0; i<readyQueue.size(); i++) {
+				if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0 && i!=index){
+					readyQueue.at(i).waitTime+=timePasses;
+				}
+			}
 		}
 		else {
 			currentTime++;
-			for(int i = 0; i<readyQueue.size(); i++) {
-				if (readyQueue.at(i).arrivalTime <= currentTime && isCompleted[i] == 0){
-					readyQueue.at(i).waitTime++;
-				}
-			}
+			
 		}
 
 	}
@@ -230,7 +221,7 @@ void SJN(vector<Process> readyQueue) {
 	cout << "\nPID\tService Time\tTurnaround Time\tStart Time\tCompletion Time\tWait Time\n";
 	for (int i = 0; i < readyQueue.size(); i++) {
 		cout << readyQueue.at(i).id << "\t"
-		<<  readyQueue.at(i).completionTime - readyQueue.at(i).arrivalTime - readyQueue.at(i).waitTime <<"\t\t   "
+		<<  readyQueue.at(i).burstTime <<"\t\t   "
 		<< readyQueue.at(i).turnaroundTime <<"\t\t"
 		 << readyQueue.at(i).startTime << "\t\t"
 		  << readyQueue.at(i).completionTime << "\t\t"
